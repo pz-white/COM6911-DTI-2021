@@ -49,5 +49,5 @@ drug_vector = data_selected['Drug2vector']
 train_loader = DataLoader(dataset=drug_vector, shuffle=False, batch_size=len(data_selected))
 sample = next(iter(train_loader))
 sample = np.array(sample) # get the array like Drug2Vector
-print(sample)
-print(sample.shape) # show the shape of Drug2vector
+
+
