@@ -1,35 +1,36 @@
 import os
 import sys
-
 import numpy as np
-
 sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())) + '/mol2vec')
 from rdkit import Chem
-
-from mol2vec.features import mol2alt_sentence, mol2sentence, MolSentence, DfVec, sentences2vec
-from gensim.models import word2vec
 from rdkit.Chem import AllChem
+from mol2vec.features import mol2alt_sentence, DfVec
+from gensim.models import word2vec
 
 
 class Embedding:
 
-    def fp_embedding(self, bindingdb_dataset):
+    def __init__(self, bindingdb_dataset, embedding_type='morgan-fp'):
+        self.data = bindingdb_dataset
+        self.embedding_type = embedding_type
 
-        for ind, drug in enumerate(bindingdb_dataset['Drug']):
+    def fp_embedding(self):
+
+        for ind, drug in enumerate(self.data['Drug']):
             mol = Chem.MolFromSmiles(drug)
             fp = Chem.RDKFingerprint(mol)
             fp_list = list(map(int, fp.ToBitString()))
-            bindingdb_dataset['Drug_vector'][ind] = np.array(fp_list)
-            return bindingdb_dataset
+            self.data['Drug_vector'][ind] = np.array(fp_list)
+        return self.data
 
-    def morgan_fp_embedding(self, bindingdb_dataset):
+    def morgan_fp_embedding(self):
 
-        for ind, drug in enumerate(bindingdb_dataset['Drug']):
+        for ind, drug in enumerate(self.data['Drug']):
             mol = Chem.MolFromSmiles(drug)
             morgan_fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2)
             morgan_fp_list = list(map(int, morgan_fp.ToBitString()))
-            bindingdb_dataset['Drug_vector'][ind] = np.array(morgan_fp_list)
-            return bindingdb_dataset
+            self.data['Drug_vector'][ind] = np.array(morgan_fp_list)
+        return self.data
 
     def sentences2vec_updated(self, sentences, model, unseen=None):
 
@@ -50,26 +51,26 @@ class Embedding:
                                 if y in set(sentence) & keys]))
         return np.array(vec)
 
-    def mol2vec_embedding(self, bindingdb_dataset):
+    def mol2vec_embedding(self):
 
         # Load the pre-trained Mol2vec model
         model = word2vec.Word2Vec.load('model_300dim.pkl')
 
-        for ind, drug in enumerate(bindingdb_dataset['Drug']):
+        for ind, drug in enumerate(self.data['Drug']):
             mol = Chem.MolFromSmiles(drug)
             sent2vec = self.sentences2vec_updated(mol2alt_sentence(mol, 2), model, unseen='UNK')
-            bindingdb_dataset['Drug_vector'][ind] = DfVec(sent2vec)
-            return bindingdb_dataset
+            self.data['Drug_vector'][ind] = DfVec(sent2vec)
+        return self.data
 
-    def perform_embedding(self, bindingdb_dataset, embedding_type):
+    def perform_embedding(self):
 
-        bindingdb_dataset['Drug_vector'] = ''
+        self.data['Drug_vector'] = ''
 
-        if embedding_type == 'fp':
-            bindingdb_dataset = self.fp_embedding(bindingdb_dataset)
-        elif embedding_type == 'morgan_fp':
-            bindingdb_dataset = self.morgan_fp_embedding(bindingdb_dataset)
-        elif embedding_type == 'mol2vec':
-            bindingdb_dataset = self.mol2vec_embedding(bindingdb_dataset)
+        if self.embedding_type == 'fp':
+            bindingdb_dataset = self.fp_embedding()
+        elif self.embedding_type == 'mol2vec':
+            bindingdb_dataset = self.mol2vec_embedding()
+        else:
+            bindingdb_dataset = self.morgan_fp_embedding()
 
         return bindingdb_dataset
