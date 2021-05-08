@@ -1,6 +1,8 @@
 import numpy as np
 from tdc.multi_pred import DTI
 
+from cluster.DBSCAN_clustering import DBSCAN
+from cluster.Kmeans_clustering import Kmeans
 from cluster.agglomerative_clustering import Agglomerative
 
 
