@@ -4,7 +4,7 @@ from sklearn.cluster import DBSCAN
 import time
 import torch
 
-class DBSCAN:
+class dbscan:
     def __init__(self, bindingdb_dataset, eps=3.5, min_samples=30, n_components=150, embedding='morgan-fp'):
         self.data = bindingdb_dataset
         self.embedding = embedding
