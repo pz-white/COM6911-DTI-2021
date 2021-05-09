@@ -68,15 +68,14 @@ def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2])
     return train_dataset, val_dataset, test_dataset
 
 
-def apply_clustering(bindingdb_dataset, num_of_clusters, cluster_type='k_means'):
+def apply_clustering(bindingdb_dataset, num_of_clusters, cluster_type):
     if cluster_type == 'agglomerative':
         bindingdb_dataset = Agglomerative(bindingdb_dataset, num_of_clusters, 'fp').cluster()
-    elif cluster_type == 'dbscan':
-        print("dbscan")
-        bindingdb_dataset = dbscan(bindingdb_dataset).cluster()
+    elif cluster_type == 'DBSCAN':
+        print("DBSCAN")
+        bindingdb_dataset = DBSCAN(bindingdb_dataset, 'fp').cluster()
     else:
-        #bindingdb_dataset = Kmeans(bindingdb_dataset, 'fp', num_of_clusters).cluster()
-        print("kmeans")
+        bindingdb_dataset = Kmeans(bindingdb_dataset, num_of_clusters, 'fp').cluster()
     return bindingdb_dataset
 
 
@@ -96,11 +95,12 @@ def main():
 
     # Apply cluster based on the 3 types of cluster
     # can define cluster_type -> k_means, agglomerative, dbscan
-    bindingdb_dataset = apply_clustering(bindingdb_dataset, num_of_clusters=cfg.SOLVER.NUM_OF_CLUSTERS,
-                                         cluster_type=cfg.MODEL.CLUSTER_TYPE)
+#     bindingdb_dataset = apply_clustering(bindingdb_dataset, num_of_clusters=cfg.SOLVER.NUM_OF_CLUSTERS,
+#                                          cluster_type=cfg.MODEL.CLUSTER_TYPE)
+    bindingdb_dataset_cluster=apply_clustering(bindingdb_dataset, num_of_clusters=cfg.SOLVER.NUM_OF_CLUSTERS, cluster_type=cfg.MODEL.CLUSTER_TYPE)
 
     # Split the data based on the clusters formed by specifying the split in fraction
-    train_dataset, val_dataset, test_dataset = get_split_by_clusters(bindingdb_dataset,
+    train_dataset, val_dataset, test_dataset = get_split_by_clusters(bindingdb_dataset_cluster,
                                                                      num_of_clusters=cfg.SOLVER.NUM_OF_CLUSTERS)
     
     train_dataset = DTADataset(ds=train_dataset)
