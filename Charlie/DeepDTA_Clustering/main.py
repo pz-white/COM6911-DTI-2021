@@ -7,7 +7,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 import torch
 from torch.utils.data import DataLoader
-from cluster.DBSCAN_clustering import DBSCAN
+from cluster.DBSCAN_clustering import dbscan
 from cluster.Kmeans_clustering import Kmeans
 from cluster.agglomerative_clustering import Agglomerative
 from dta_datasets import DTADataset
@@ -56,7 +56,6 @@ def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2])
         else:
             test_indx.append(key)
 
-
     train_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(train_indx)]
     val_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(val_indx)]
     test_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(test_indx)]
@@ -65,7 +64,7 @@ def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2])
     val_dataset = val_dataset.drop(['Cluster'], axis=1).reset_index()
     test_dataset = test_dataset.drop(['Cluster'], axis=1).reset_index()
 
-    print("Train:",len(train_dataset),"Val:",len(val_dataset),"Test",len(test_dataset))
+    print("Train:",len(train_dataset),"Val:",len(val_dataset),"Test:",len(test_dataset))
     return train_dataset, val_dataset, test_dataset
 
 
@@ -74,7 +73,7 @@ def apply_clustering(bindingdb_dataset, num_of_clusters, cluster_type='k_means')
         bindingdb_dataset = Agglomerative(bindingdb_dataset, num_of_clusters, 'fp').cluster()
     elif cluster_type == 'dbscan':
         print("dbscan")
-        #bindingdb_dataset = Dbscan(bindingdb_dataset, 'fp', num_of_clusters).cluster()
+        bindingdb_dataset = dbscan(bindingdb_dataset).cluster()
     else:
         #bindingdb_dataset = Kmeans(bindingdb_dataset, 'fp', num_of_clusters).cluster()
         print("kmeans")
