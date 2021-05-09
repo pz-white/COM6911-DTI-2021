@@ -15,12 +15,7 @@ class dbscan:
     def cluster(self):
 
         drug_ids_data = self.data.get_data()[['Drug_ID', 'Drug']]
-        unique_drug_ids_data = drug_ids_data.drop_duplicates().reset_index(drop=True)
-
-        drugid_index_mapping = {drugid: drug_ids_data.index[drug_ids_data['Drug_ID'] == drugid].tolist()
-                                for drugid in unique_drug_ids_data.Drug_ID}
-
-        drug_ids_data = Embedding(unique_drug_ids_data, 'fp').perform_embedding()
+        drug_ids_data = Embedding(drug_ids_data, self.embedding).perform_embedding()
 
         st = time.time()
         pca = PCA(self.n_components)
@@ -33,17 +28,8 @@ class dbscan:
         et = time.time()
         print("Time required for clustering:", et-st)
 
-        # Map the drug ids to cluster and save it in a dict
-        drug_ids_cluster_map = dict(zip(drug_ids_data.Drug_ID, clustering.labels_))
-
         # Fetch entire data and add cluster column
         data = self.data.get_data()
-        data['Cluster'] = ''
-
-        # map the clusters to entire data
-        for i, (k, v) in enumerate(drugid_index_mapping.items()):
-            cluster_val = drug_ids_cluster_map.get(k)
-            for ind in v:
-                data['Cluster'][ind] = cluster_val
+        data['Cluster'] = clustering.labels_
 
         return data
