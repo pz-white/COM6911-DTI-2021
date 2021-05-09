@@ -11,6 +11,7 @@ from cluster.DBSCAN_clustering import DBSCAN
 from cluster.Kmeans_clustering import Kmeans
 from cluster.agglomerative_clustering import Agglomerative
 from dta_datasets import DTADataset
+from random import shuffle
 
 
 def arg_parse():
@@ -23,21 +24,48 @@ def arg_parse():
     return args
 
 
-def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.65, 0.05, 0.30]):
+def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2]):
 
-    clusters = np.arange(0, num_of_clusters)
-    np.random.shuffle(clusters)
-    train_clusters, test_clusters, val_clusters = np.split(clusters, [int(frac[0] * len(clusters)),
-                                                                      int((frac[0] + frac[2]) * len(clusters))])
+    # get a dict in the form of { cluster_index : sample_number_in_the_cluster }
+    cluster_count = bindingdb_data.groupby(['Cluster']).Drug.count()
+    cluster_count_mapping = {k: v for k, v in enumerate(cluster_count)}
 
-    train_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(train_clusters)]
-    val_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(val_clusters)]
-    test_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(test_clusters)]
+    print("{ cluster_index : sample_number_in_the_cluster }")
+    print(cluster_count_mapping)
+    # total sample_num
+    sample_num = len(bindingdb_data)
+
+    train_num = int(frac[0] * sample_num) # the number of sample in train
+    val_num = int(frac[1] * sample_num) # the number of sample in val
+
+    train_indx = []
+    val_indx = []
+    test_indx = []
+
+    # the list of cluster index and shuffle it
+    cluster_indx_list = list(cluster_count_mapping.keys())
+    #shuffle(cluster_indx_list)
+
+    temp_samp_num = 0
+    for key in cluster_indx_list:
+        temp_samp_num += cluster_count_mapping[key]
+        if temp_samp_num < train_num:
+            train_indx.append(key)
+        elif temp_samp_num < (train_num + val_num):
+            val_indx.append(key)
+        else:
+            test_indx.append(key)
+
+
+    train_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(train_indx)]
+    val_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(val_indx)]
+    test_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(test_indx)]
 
     train_dataset = train_dataset.drop(['Cluster'], axis=1).reset_index()
     val_dataset = val_dataset.drop(['Cluster'], axis=1).reset_index()
     test_dataset = test_dataset.drop(['Cluster'], axis=1).reset_index()
 
+    print("Train:",len(train_dataset),"Val:",len(val_dataset),"Test",len(test_dataset))
     return train_dataset, val_dataset, test_dataset
 
 
