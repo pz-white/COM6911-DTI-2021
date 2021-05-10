@@ -73,7 +73,7 @@ def apply_clustering(bindingdb_dataset, num_of_clusters, cluster_type):
         bindingdb_dataset = Agglomerative(bindingdb_dataset, num_of_clusters, 'fp').cluster()
     elif cluster_type == 'DBSCAN':
         print("DBSCAN")
-        bindingdb_dataset = dbscan(bindingdb_dataset, 'fp').cluster()
+        bindingdb_dataset = dbscan(bindingdb_dataset, embedding = 'fp').cluster()
     else:
         bindingdb_dataset = Kmeans(bindingdb_dataset, num_of_clusters, 'fp').cluster()
     return bindingdb_dataset
