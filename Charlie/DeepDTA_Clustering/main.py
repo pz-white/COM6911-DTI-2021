@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from cluster.DBSCAN_clustering import dbscan
 from cluster.Kmeans_clustering import Kmeans
 from cluster.agglomerative_clustering import Agglomerative
+from cluster.Spectral_Clustering import Spectral
 from dta_datasets import DTADataset
 from random import shuffle
 
@@ -70,14 +71,18 @@ def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2])
 
 def apply_clustering(bindingdb_dataset, num_of_clusters, cluster_type):
     if cluster_type == 'agglomerative':
+        print('Agglomerative clustering')
         bindingdb_dataset = Agglomerative(bindingdb_dataset, num_of_clusters, 'fp').cluster()
-    elif cluster_type == 'DBSCAN':
-        print("DBSCAN")
+    elif cluster_type == 'dbscan':
+        print("DBSCAN clustering")
         bindingdb_dataset = dbscan(bindingdb_dataset, embedding = 'fp').cluster()
+    elif cluster_type == 'spectral':
+        print('Spectral clustering')
+        bindingdb_dataset = Spectral(bindingdb_dataset, num_of_clusters = num_of_clusters, embedding = 'fp').cluster()
     else:
+        print('Kmeans clustering')
         bindingdb_dataset = Kmeans(bindingdb_dataset, num_of_clusters, 'fp').cluster()
     return bindingdb_dataset
-
 
 def main():
     # For now hard coding the values for all methods below, change to read it using config file
