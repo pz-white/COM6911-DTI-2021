@@ -2,6 +2,8 @@ from embedding import Embedding
 from sklearn.cluster import SpectralClustering
 import torch
 import time
+import numpy as np
+import sklearn as sk
 
 
 class Spectral:
@@ -23,7 +25,16 @@ class Spectral:
 
         st = time.time()
         data = torch.tensor(list(drug_ids_data['Drug_vector']))
-        clustering = SpectralClustering(n_clusters=self.num_of_clusters)
+        
+        # calculates a distance matrix, according to type METRIC euclidean
+        data = sk.metrics.pairwise.pairwise_distances(data, metric='euclidean')
+        # converts the distance matrix in above step to a similarity matrix
+        beta = 1.0
+        data = np.exp(-beta * data / data.std())
+
+        clustering = SpectralClustering(n_clusters=self.num_of_clusters, n_init=1, n_neighbors=5, eigen_tol=0.000001, n_jobs=6,
+                                         affinity='precomputed')
+              
         print("Start fitting```")
         clustering.fit(data)
         et = time.time()
