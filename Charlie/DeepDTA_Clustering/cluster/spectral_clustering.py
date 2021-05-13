@@ -32,8 +32,8 @@ class Spectral:
         beta = 1.0
         data = np.exp(-beta * data / data.std())
 
-        clustering = SpectralClustering(n_clusters=self.num_of_clusters, n_init=1, n_neighbors=5, eigen_tol=0.000001, n_jobs=6,
-                                         affinity='precomputed')
+        clustering = SpectralClustering(n_clusters=self.num_of_clusters, n_init=1, n_neighbors=5, eigen_tol=0.000001,
+                                        n_jobs=6,random_state=46,eigen_solver='amg',affinity='precomputed')
               
         print("Start fitting```")
         clustering.fit(data)
