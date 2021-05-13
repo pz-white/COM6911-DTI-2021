@@ -12,8 +12,6 @@ from cluster.kmeans_clustering import Kmeans
 from cluster.agglomerative_clustering import Agglomerative
 from cluster.Spectral_Clustering import Spectral
 from dta_datasets import DTADataset
-from random import shuffle
-
 
 def arg_parse():
     """Parsing arguments"""
@@ -24,15 +22,19 @@ def arg_parse():
     args = parser.parse_args()
     return args
 
-
 def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2]):
 
     # get a dict in the form of { cluster_index : sample_number_in_the_cluster }
     cluster_count = bindingdb_data.groupby(['Cluster']).Drug.count()
     cluster_count_mapping = {k: v for k, v in enumerate(cluster_count)}
 
+    # sort the dict accord to the value
+    cluster_count_mapping_order = sorted(cluster_count_mapping.items(), key=lambda item:item[1], reverse=True)
+
     print("{ cluster_index : sample_number_in_the_cluster }")
     print(cluster_count_mapping)
+    print(cluster_count_mapping_order)
+
     # total sample_num
     sample_num = len(bindingdb_data)
 
@@ -43,17 +45,18 @@ def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2])
     val_indx = []
     test_indx = []
 
-    # the list of cluster index and shuffle it
-    cluster_indx_list = list(cluster_count_mapping.keys())
-    #shuffle(cluster_indx_list)
+    # the list of cluster index
+    cluster_indx_list = [cluster_map[0] for cluster_map in cluster_count_mapping_order ]
 
-    temp_samp_num = 0
+    samp_num_in_train = 0
+    samp_num_in_val = 0
     for key in cluster_indx_list:
-        temp_samp_num += cluster_count_mapping[key]
-        if temp_samp_num < train_num:
+        if (samp_num_in_train < train_num)&(samp_num_in_train+cluster_count_mapping[key]<train_num):
             train_indx.append(key)
-        elif temp_samp_num < (train_num + val_num):
+            samp_num_in_train += cluster_count_mapping[key]
+        elif (samp_num_in_val < val_num)&(samp_num_in_val+cluster_count_mapping[key]<val_num):
             val_indx.append(key)
+            samp_num_in_val += cluster_count_mapping[key]
         else:
             test_indx.append(key)
 
@@ -61,17 +64,12 @@ def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2])
     val_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(val_indx)]
     test_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(test_indx)]
 
-    train_dataset = train_dataset.reset_index()
-    val_dataset = val_dataset.reset_index()
-    test_dataset = test_dataset.reset_index()
-    
-    train_dataset=train_dataset.drop(["index"],axis=1)
-    val_dataset=val_dataset.drop(["index"],axis=1)
-    test_dataset=test_dataset.drop(["index"],axis=1)
+    train_dataset = train_dataset.drop(['Cluster'], axis=1).reset_index()
+    val_dataset = val_dataset.drop(['Cluster'], axis=1).reset_index()
+    test_dataset = test_dataset.drop(['Cluster'], axis=1).reset_index()
 
     print("Train:",len(train_dataset),"Val:",len(val_dataset),"Test:",len(test_dataset))
     return train_dataset, val_dataset, test_dataset
-
 
 def apply_clustering(bindingdb_dataset, num_of_clusters, cluster_type):
     if cluster_type == 'agglomerative':
