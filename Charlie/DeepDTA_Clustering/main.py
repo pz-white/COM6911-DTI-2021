@@ -8,7 +8,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 import torch
 from torch.utils.data import DataLoader
 from cluster.DBSCAN_clustering import dbscan
-from cluster.Kmeans_clustering import Kmeans
+from cluster.kmeans_clustering import Kmeans
 from cluster.agglomerative_clustering import Agglomerative
 from cluster.Spectral_Clustering import Spectral
 from dta_datasets import DTADataset
