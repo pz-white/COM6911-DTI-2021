@@ -61,10 +61,6 @@ def get_split_by_clusters(bindingdb_data, num_of_clusters, frac=[0.7, 0.1, 0.2])
     val_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(val_indx)]
     test_dataset = bindingdb_data.loc[bindingdb_data['Cluster'].isin(test_indx)]
 
-#     train_dataset = train_dataset.drop(['Cluster'], axis=1).reset_index()
-#     val_dataset = val_dataset.drop(['Cluster'], axis=1).reset_index()
-#     test_dataset = test_dataset.drop(['Cluster'], axis=1).reset_index()
-
     train_dataset = train_dataset.reset_index()
     val_dataset = val_dataset.reset_index()
     test_dataset = test_dataset.reset_index()
