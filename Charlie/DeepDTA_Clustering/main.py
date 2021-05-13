@@ -12,6 +12,8 @@ from cluster.kmeans_clustering import Kmeans
 from cluster.agglomerative_clustering import Agglomerative
 from cluster.Spectral_Clustering import Spectral
 from dta_datasets import DTADataset
+from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger
+
 
 def arg_parse():
     """Parsing arguments"""
@@ -95,6 +97,7 @@ def main():
     cfg = get_cfg_defaults()
     cfg.merge_from_file(args.cfg)
     cfg.freeze()
+    tb_logger = TensorBoardLogger("tb_logs", name=cfg.DATASET.NAME)
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # Fetch the bindingDB dataset based on the name defined in config file
@@ -124,7 +127,7 @@ def main():
     # ---- training and evaluation ----
     gpus = 1 if device == "cuda" else 0
     checkpoint_callback = ModelCheckpoint(monitor='val_loss', mode="min")
-    trainer = pl.Trainer(max_epochs=cfg.SOLVER.MAX_EPOCHS, gpus=gpus, callbacks=[checkpoint_callback])
+    trainer = pl.Trainer(max_epochs=cfg.SOLVER.MAX_EPOCHS, gpus=gpus, logger=tb_logger, callbacks=[checkpoint_callback])
     trainer.fit(model, train_dataloader=train_loader, val_dataloaders=val_loader)
     trainer.test(test_dataloaders=test_loader)
 
