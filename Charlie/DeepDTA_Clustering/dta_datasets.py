@@ -1,7 +1,6 @@
 import torch
 from torch.utils import data
 from tdc import utils
-#from tdc.base_dataset import DataLoader
 from kale.prepdata.chem_transform import integer_label_protein, integer_label_smiles
 
 
@@ -22,7 +21,7 @@ class DTADataset(data.Dataset):
         self.data = ds
         self.mode = mode.lower()
         if y_log:
-            utils.convert_to_log(self.data.Y)
+            self.data.Y = utils.convert_to_log(self.data.Y)
         self.drug_transform = drug_transform
         self.protein_transform = protein_transform
 
