@@ -4,7 +4,7 @@ import torch
 import time
 
 
-class Kmeans:
+class kmeans:
 
     def __init__(self, bindingdb_dataset, num_of_clusters, embedding='morgan-fp'):
         self.data = bindingdb_dataset
