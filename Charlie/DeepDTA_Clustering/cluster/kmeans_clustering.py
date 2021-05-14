@@ -23,7 +23,7 @@ class Kmeans:
         st = time.time()
         data = torch.tensor(list(drug_ids_data['Drug_vector']))
 
-        clustering = KMeans(n_clusters=self.num_of_clusters)
+        clustering = KMeans(n_clusters=self.num_of_clusters,random_state=0)
         clustering.fit(data)
 
         et = time.time()
