@@ -36,5 +36,5 @@ for i in range(num_drugs):
 
 print('Drug similarity matrix completed')
 
-np.savetxt('drug_sim.txt', drug_sim, fmt='%d')
+np.savetxt('drug_sim.txt', drug_sim, delimiter=',')
 print('Drug similarity matrix saved')
