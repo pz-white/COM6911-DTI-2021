@@ -32,7 +32,7 @@ for i in range(num_drugs):
 drug_sim = np.zeros((num_drugs, num_drugs))
 for i in range(num_drugs):
     if i % 1000 == 0:
-        print('\n500 drug similarities calculated')
+        print('\n1000 drug similarities calculated')
     fp1 = drug_fingerprints[i]
     for j in range(num_drugs):
         fp2 = drug_fingerprints[j]
