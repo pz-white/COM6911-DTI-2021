@@ -24,7 +24,7 @@ drug_fingerprints={}
 
 for i in range(num_drugs):
     drug = ID_to_Drug[i]
-    m = Chem.MolFromSmiles(drug1)
+    m = Chem.MolFromSmiles(drug)
     fp = AllChem.GetMorganFingerprint(m, 2)
     drug_fingerprints[i] = fp
     
