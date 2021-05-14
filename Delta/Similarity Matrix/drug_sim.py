@@ -14,8 +14,6 @@ train = split['train']
 test = split['test']
 print('Data loaded')
 
-train = train.dropna()
-
 ID_to_Drug = dict(enumerate(list(dict.fromkeys(train['Drug']))))
 Drug_to_ID = dict((v,k) for k,v in ID_to_Drug.items())
 print('Drug dictionaries completed')
