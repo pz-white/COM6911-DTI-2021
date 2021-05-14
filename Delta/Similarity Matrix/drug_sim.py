@@ -22,7 +22,7 @@ num_drugs = len(Drug_to_ID.keys())
 drug_sim = np.zeros((num_drugs, num_drugs))
 for i in range(num_drugs):
     if i % 1000 == 0:
-        print('\n500 drug similarities calculated')
+        print('\n1000 drug similarities calculated')
     drug1 = ID_to_Drug[i]
     m1 = Chem.MolFromSmiles(drug1)
     fp1 = AllChem.GetMorganFingerprint(m1, 2)
