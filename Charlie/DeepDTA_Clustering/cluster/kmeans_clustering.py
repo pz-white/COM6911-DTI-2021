@@ -1,5 +1,6 @@
 from embedding import Embedding
 from sklearn.cluster import KMeans
+from config import get_cfg_defaults
 import torch
 import time
 
@@ -22,8 +23,10 @@ class Kmeans:
 
         st = time.time()
         data = torch.tensor(list(drug_ids_data['Drug_vector']))
+        
+        cfg = get_cfg_defaults()
 
-        clustering = KMeans(n_clusters=self.num_of_clusters,random_state=0)
+        clustering = KMeans(n_clusters=self.num_of_clusters,random_state=cfg.SOLVER.SEED)
         clustering.fit(data)
 
         et = time.time()
