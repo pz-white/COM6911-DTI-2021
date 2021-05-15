@@ -4,6 +4,7 @@ import torch
 import time
 import numpy as np
 import sklearn as sk
+from config import get_cfg_defaults
 
 
 class Spectral:
@@ -31,9 +32,11 @@ class Spectral:
         # converts the distance matrix in above step to a similarity matrix
         beta = 1.0
         data = np.exp(-beta * data / data.std())
+        
+        cfg = get_cfg_defaults()
 
         clustering = SpectralClustering(n_clusters=self.num_of_clusters, n_init=1, n_neighbors=5, eigen_tol=0.000001,
-                                        n_jobs=6,random_state=46,eigen_solver='amg',affinity='precomputed')
+                                        n_jobs=6,random_state=cfg.SOLVER.SEED,eigen_solver='amg',affinity='precomputed')
               
         print("Start fitting```")
         clustering.fit(data)
