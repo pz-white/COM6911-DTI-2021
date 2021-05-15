@@ -14,29 +14,32 @@ train = split['train']
 test = split['test']
 print('Data loaded')
 
-train = train.dropna()
-
 ID_to_Drug = dict(enumerate(list(dict.fromkeys(train['Drug']))))
 Drug_to_ID = dict((v,k) for k,v in ID_to_Drug.items())
 print('Drug dictionaries completed')
 
 num_drugs = len(Drug_to_ID.keys())
+
+drug_fingerprints={}
+
+for i in range(num_drugs):
+    drug = ID_to_Drug[i]
+    m = Chem.MolFromSmiles(drug)
+    fp = AllChem.GetMorganFingerprint(m, 2)
+    drug_fingerprints[i] = fp
+    
+
 drug_sim = np.zeros((num_drugs, num_drugs))
 for i in range(num_drugs):
     if i % 1000 == 0:
-        print('\n500 drug similarities calculated')
-    drug1 = ID_to_Drug[i]
-    m1 = Chem.MolFromSmiles(drug1)
-    fp1 = AllChem.GetMorganFingerprint(m1, 2)
+        print('\n1000 drug similarities calculated')
+    fp1 = drug_fingerprints[i]
     for j in range(num_drugs):
-        drug2 = ID_to_Drug[j]
-        m2 = Chem.MolFromSmiles(drug2)
-        fp2 = AllChem.GetMorganFingerprint(m2, 2)
-
+        fp2 = drug_fingerprints[j]
         sim_score = DataStructs.DiceSimilarity(fp1, fp2)
         drug_sim[i][j] = sim_score
 
 print('Drug similarity matrix completed')
 
-np.savetxt('drug_sim.txt', drug_sim, fmt='%d')
+np.savetxt('drug_sim.txt', drug_sim, delimiter=',')
 print('Drug similarity matrix saved')

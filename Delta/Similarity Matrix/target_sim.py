@@ -1,16 +1,7 @@
 # import modules
-from pyspark.sql import SparkSession
 import numpy as np
 from tdc.multi_pred import DTI
 from Bio import Align
-
-spark = SparkSession.builder \
-    .master("local[30]") \
-    .appName("targets") \
-    .config("spark.local.dir", "/fastdata/acp20swm") \
-    .getOrCreate()
-sc = spark.sparkContext
-sc.setLogLevel("ERROR")
 
 data_Kd = DTI(name='BindingDB_Kd')
 data_Kd.convert_to_log(form='binding')
