@@ -1,5 +1,6 @@
 from sklearn.cluster import AgglomerativeClustering
 from embedding import Embedding
+from config import get_cfg_defaults
 import torch
 import time
 
@@ -23,8 +24,11 @@ class Agglomerative:
 
         st = time.time()
         data = torch.tensor(list(drug_ids_data['Drug_vector']))
-        clustering = AgglomerativeClustering(linkage='average', n_clusters=self.num_of_clusters)
+        cfg = get_cfg_defaults()
+        
+        clustering = AgglomerativeClustering(linkage='average', n_clusters=self.num_of_clusters,random_state=cfg.SOLVER.SEED)
         clustering.fit(data)
+        
         et = time.time()
         print("Time required for clustering:", et-st)
 
